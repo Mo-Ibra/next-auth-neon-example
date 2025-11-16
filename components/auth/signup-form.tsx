@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -14,7 +14,7 @@ import {
 import Link from "next/link";
 
 export function SignupForm() {
-  const router = useRouter();
+  // const router = useRouter();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -23,6 +23,7 @@ export function SignupForm() {
   });
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [emailSent, setEmailSent] = useState(false);
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     setFormData((prev) => ({
@@ -60,17 +61,63 @@ export function SignupForm() {
 
       if (!response.ok) {
         const data = await response.json();
+        console.log(response);
+        console.log(data);
         setError(data.error || "Failed to create account");
         setIsLoading(false);
         return;
       }
 
-      router.push("/login");
-      router.refresh();
+      // router.push("/login");
+      // router.refresh();
+      setEmailSent(true);
     } catch (error) {
       setError("An error occurred. Please try again.");
       setIsLoading(false);
     }
+  }
+
+  if (emailSent) {
+    return (
+      <Card className="w-full max-w-md">
+        <CardHeader>
+          <CardTitle>Check Your Email</CardTitle>
+          <CardDescription>
+            We've sent a verification link to {formData.email}
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="bg-blue-50 text-blue-700 p-4 rounded-md text-sm space-y-2">
+            <p className="font-medium">Verify your email to complete signup</p>
+            <p>
+              Click the link in the email we sent you to activate your account.
+            </p>
+            <p className="text-xs">The link expires in 24 hours.</p>
+          </div>
+          <Button
+            onClick={() => {
+              setEmailSent(false);
+              setFormData({
+                name: "",
+                email: "",
+                password: "",
+                confirmPassword: "",
+              });
+            }}
+            variant="outline"
+            className="w-full"
+          >
+            Back to Sign Up
+          </Button>
+          <p className="text-sm text-muted-foreground text-center">
+            Already have an account?{" "}
+            <Link href="/login" className="text-primary hover:underline">
+              Sign in
+            </Link>
+          </p>
+        </CardContent>
+      </Card>
+    );
   }
 
   return (

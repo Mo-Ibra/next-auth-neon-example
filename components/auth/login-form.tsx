@@ -20,6 +20,7 @@ export function LoginForm() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -32,7 +33,7 @@ export function LoginForm() {
         password,
         redirect: false,
       });
-      
+
       if (result.error === "CredentialsSignin") {
         setError("Invalid email or password");
         setIsLoading(false);
@@ -44,6 +45,18 @@ export function LoginForm() {
     } catch (error) {
       setError("An error occurred. Please try again.");
       setIsLoading(false);
+    }
+  }
+
+  async function handleGoogleSignIn() {
+    setIsGoogleLoading(true);
+    try {
+      await signIn("google", { redirect: false });
+      router.push("/dashboard");
+      router.refresh();
+    } catch (error) {
+      setError("Failed to sign in with Google");
+      setIsGoogleLoading(false);
     }
   }
 
@@ -92,6 +105,26 @@ export function LoginForm() {
             {isLoading ? "Signing in..." : "Sign In"}
           </Button>
         </form>
+
+        <div className="relative my-4">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-muted"></div>
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-background px-2 text-muted-foreground">Or</span>
+          </div>
+        </div>
+
+        <Button
+          type="button"
+          variant="outline"
+          className="w-full"
+          onClick={handleGoogleSignIn}
+          disabled={isGoogleLoading}
+        >
+          {isGoogleLoading ? "Signing in..." : "Sign in with Google"}
+        </Button>
+
         <p className="text-sm text-muted-foreground text-center mt-4">
           Don't have an account?{" "}
           <Link href="/signup" className="text-primary hover:underline">
