@@ -9,9 +9,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { UserNav } from "@/components/dashboard/user-nav";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import EmailVerified from "@/components/dashboard/email-verified";
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -27,28 +25,7 @@ export default async function DashboardPage() {
 
   if (!user?.emailVerified) {
     return (
-      <main className="min-h-screen bg-background flex items-center justify-center p-4">
-        <Card className="w-full max-w-md">
-          <CardHeader>
-            <CardTitle>Email Verification Required</CardTitle>
-            <CardDescription>
-              Please verify your email address to access the dashboard
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <Alert>
-              <AlertDescription>
-                Your email <strong>{session.user.email}</strong> needs to be verified before you can access the dashboard.
-              </AlertDescription>
-            </Alert>
-            <Button className="w-full" asChild>
-              <Link href={`/verify-email?email=${encodeURIComponent(session.user.email!)}`}>
-                Verify Email Now
-              </Link>
-            </Button>
-          </CardContent>
-        </Card>
-      </main>
+      <EmailVerified  session={session} />
     );
   }
 
@@ -85,7 +62,9 @@ export default async function DashboardPage() {
               </div>
               {user.emailVerified && (
                 <div className="space-y-2">
-                  <p className="text-sm text-muted-foreground">Email Verified:</p>
+                  <p className="text-sm text-muted-foreground">
+                    Email Verified:
+                  </p>
                   <p className="text-green-600 font-medium">✓ Verified</p>
                 </div>
               )}
