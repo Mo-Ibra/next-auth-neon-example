@@ -12,6 +12,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import Link from "next/link";
+import { signIn } from "next-auth/react";
 
 export function SignupForm() {
   const router = useRouter();
@@ -24,6 +25,7 @@ export function SignupForm() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     setFormData((prev) => ({
@@ -79,48 +81,15 @@ export function SignupForm() {
     }
   }
 
-  // if (emailSent) {
-  //   return (
-  //     <Card className="w-full max-w-md">
-  //       <CardHeader>
-  //         <CardTitle>Check Your Email</CardTitle>
-  //         <CardDescription>
-  //           We've sent a verification link to {formData.email}
-  //         </CardDescription>
-  //       </CardHeader>
-  //       <CardContent className="space-y-4">
-  //         <div className="bg-blue-50 text-blue-700 p-4 rounded-md text-sm space-y-2">
-  //           <p className="font-medium">Verify your email to complete signup</p>
-  //           <p>
-  //             Click the link in the email we sent you to activate your account.
-  //           </p>
-  //           <p className="text-xs">The link expires in 24 hours.</p>
-  //         </div>
-  //         <Button
-  //           onClick={() => {
-  //             setEmailSent(false);
-  //             setFormData({
-  //               name: "",
-  //               email: "",
-  //               password: "",
-  //               confirmPassword: "",
-  //             });
-  //           }}
-  //           variant="outline"
-  //           className="w-full"
-  //         >
-  //           Back to Sign Up
-  //         </Button>
-  //         <p className="text-sm text-muted-foreground text-center">
-  //           Already have an account?{" "}
-  //           <Link href="/login" className="text-primary hover:underline">
-  //             Sign in
-  //           </Link>
-  //         </p>
-  //       </CardContent>
-  //     </Card>
-  //   );
-  // }
+  async function handleGoogleSignIn() {
+    setIsGoogleLoading(true);
+    try {
+      await signIn("google", { callbackUrl: "/dashboard" });
+    } catch (error) {
+      setError("Failed to sign in with Google");
+      setIsGoogleLoading(false);
+    }
+  }
 
   return (
     <Card className="w-full max-w-md">
@@ -195,6 +164,26 @@ export function SignupForm() {
             {isLoading ? "Creating account..." : "Sign Up"}
           </Button>
         </form>
+
+        <div className="relative my-4">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-muted"></div>
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-background px-2 text-muted-foreground">Or</span>
+          </div>
+        </div>
+
+        <Button
+          type="button"
+          variant="outline"
+          className="w-full"
+          onClick={handleGoogleSignIn}
+          disabled={isGoogleLoading}
+        >
+          {isGoogleLoading ? "Signing in..." : "Sign in with Google"}
+        </Button>
+
         <p className="text-sm text-muted-foreground text-center mt-4">
           Already have an account?{" "}
           <Link href="/login" className="text-primary hover:underline">

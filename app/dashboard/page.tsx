@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/card";
 import { UserNav } from "@/components/dashboard/user-nav";
 import EmailVerified from "@/components/dashboard/email-verified";
+import Image from "next/image";
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -23,10 +24,13 @@ export default async function DashboardPage() {
     select: { emailVerified: true },
   });
 
-  if (!user?.emailVerified) {
-    return (
-      <EmailVerified  session={session} />
-    );
+  const account = await prisma.account.findFirst({
+    where: { userId: session.user.id },
+    select: { provider: true },
+  });
+
+  if (!user?.emailVerified && !account?.provider) {
+    return <EmailVerified session={session} />;
   }
 
   return (
@@ -48,6 +52,17 @@ export default async function DashboardPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
+              {session.user.image && (
+                <div className="space-y-2">
+                  <p className="text-sm text-muted-foreground">Image:</p>
+                  <Image
+                    src={session.user.image}
+                    alt="Image"
+                    width="100"
+                    height="100"
+                  />
+                </div>
+              )}
               <div className="space-y-2">
                 <p className="text-sm text-muted-foreground">Name:</p>
                 <p className="font-medium">{session.user.name}</p>
@@ -60,7 +75,7 @@ export default async function DashboardPage() {
                 <p className="text-sm text-muted-foreground">User ID:</p>
                 <p className="font-mono text-sm">{session.user.id}</p>
               </div>
-              {user.emailVerified && (
+              {user?.emailVerified && (
                 <div className="space-y-2">
                   <p className="text-sm text-muted-foreground">
                     Email Verified:
