@@ -51,9 +51,7 @@ export function LoginForm() {
   async function handleGoogleSignIn() {
     setIsGoogleLoading(true);
     try {
-      await signIn("google", { redirect: false });
-      router.push("/dashboard");
-      router.refresh();
+      await signIn("google");
     } catch (error) {
       setError("Failed to sign in with Google");
       setIsGoogleLoading(false);

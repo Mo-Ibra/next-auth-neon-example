@@ -40,9 +40,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           return null;
         }
 
-        if (!user.emailVerified) {
-          return null;
-        }
+        // if (!user.emailVerified) {
+        //   return null;
+        // }
 
         return {
           id: user.id,
