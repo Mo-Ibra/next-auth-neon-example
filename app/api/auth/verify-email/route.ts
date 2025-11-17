@@ -4,39 +4,39 @@ import { prisma } from "@/lib/prisma";
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { token, email } = body;
+    const { code, email } = body;
 
-    if (!token || !email) {
+    if (!code || !email) {
       return NextResponse.json(
-        { error: "Missing token or email" },
+        { error: "Missing verification code or email" },
         { status: 400 }
       );
     }
 
     const verificationToken = await prisma.emailVerificationToken.findUnique({
-      where: { token },
+      where: { token: code },
     });
 
     if (!verificationToken) {
       return NextResponse.json(
-        { error: "Invalid verification token" },
+        { error: "Invalid verification code" },
         { status: 400 }
       );
     }
 
     if (verificationToken.email !== email) {
       return NextResponse.json(
-        { error: "Token email mismatch" },
+        { error: "Code does not match this email" },
         { status: 400 }
       );
     }
 
     if (verificationToken.expires < new Date()) {
       await prisma.emailVerificationToken.delete({
-        where: { token },
+        where: { token: code },
       });
       return NextResponse.json(
-        { error: "Verification token has expired" },
+        { error: "Verification code has expired" },
         { status: 400 }
       );
     }
@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
     });
 
     await prisma.emailVerificationToken.delete({
-      where: { token },
+      where: { token: code },
     });
 
     return NextResponse.json({
